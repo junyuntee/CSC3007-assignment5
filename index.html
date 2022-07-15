@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.css" />
+
+    <title>Readings PSI</title>
+    <style>
+        #map {
+            width: 1000px;
+            height: 600px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.js"></script>
+<script>
+
+
+    let tiles = new L.tileLayer('https://maps-{s}.onemap.sg/v3/Default/{z}/{x}/{y}.png', {
+        detectRetina: true,
+        maxZoom: 18,
+        minZoom: 11,
+        //Do not remove this attribution
+        attribution: '<img src="https://docs.onemap.sg/maps/images/oneMap64-01.png" style="height:20px;width:20px;">' +
+            'New OneMap | Map data © contributors, <a href="http://SLA.gov.sg">Singapore Land Authority</a>'
+    });
+
+
+    let map = new L.Map("map", {
+        center: [1.347833, 103.809357],
+        zoom: 11,
+        maxBounds: L.latLngBounds(L.latLng(1.1, 103.5), L.latLng(1.5, 104.3))
+    })
+        .addLayer(tiles);
+
+    fetch('https://api.data.gov.sg/v1/environment/psi')
+        .then(response => response.json())
+        .then(function (data) {
+            console.log(data)
+            var regionMetadata = data.region_metadata;
+            var psiValues = data.items[0].readings.psi_twenty_four_hourly;
+            var westMarker = L.circle([regionMetadata[0].label_location.latitude, regionMetadata[0].label_location.longitude], {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: 500
+            }).bindTooltip(`<div style='background:white; padding:1px 3px 1px 3px'>${psiValues.west}</div>`, { permanent: true, className:'leaflet-marker' }).addTo(map);
+            var eastMarker = L.circle([regionMetadata[2].label_location.latitude, regionMetadata[2].label_location.longitude], {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: 500
+            }).bindTooltip(`<div style='background:white; padding:1px 3px 1px 3px'>${psiValues.east}</div>`, { permanent: true, className:'leaflet-marker' }).addTo(map);
+
+            var centralMarker = L.circle([regionMetadata[3].label_location.latitude, regionMetadata[3].label_location.longitude], {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: 500
+            }).bindTooltip(`<div style='background:white; padding:1px 3px 1px 3px'>${psiValues.central}</div>`, { permanent: true, className:'leaflet-marker' }).addTo(map);
+            var southMarker = L.circle([regionMetadata[4].label_location.latitude, regionMetadata[4].label_location.longitude], {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: 500
+            }).bindTooltip(`<div style='background:white; padding:1px 3px 1px 3px'>${psiValues.south}</div>`, { permanent: true, className:'leaflet-marker' }).addTo(map);
+            var northMarker = L.circle([regionMetadata[5].label_location.latitude, regionMetadata[5].label_location.longitude], {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: 500
+            }).bindTooltip(`<div style='background:white; padding:1px 3px 1px 3px'>${psiValues.north}</div>`, { permanent: true, className:'leaflet-marker' }).addTo(map);
+
+
+        });
+</script>
+
+</html>
